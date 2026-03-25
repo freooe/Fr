@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYSTEM CHECK</title>
+    <style>
+        /* إعدادات الشاشة المعطلة */
+        #disabled-screen {
+            display: none; /* مخفي افتراضياً */
+            background-color: #000;
+            color: #555;
+            height: 100vh;
+            width: 100vw;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            position: fixed;
+            top: 0; left: 0; z-index: 9999;
+        }
+
+        /* تنسيقات شاشة الاختراق (نفس تصميمك السابق) */
+        body { margin: 0; background-color: #000; color: #ff0000; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .stars-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .star { position: absolute; background: #ff0000; border-radius: 50%; opacity: 0; animation: twinkle var(--duration) infinite ease-in-out; }
+        @keyframes twinkle { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+        #final-warning { position: fixed; top: -100px; left: 0; width: 100%; background: #bc0000; color: #fff; text-align: center; padding: 15px 0; font-weight: bold; z-index: 10; box-shadow: 0 0 20px #ff0000; transition: top 0.8s ease-in-out; }
+        .main-container { z-index: 2; text-align: center; width: 90%; }
+        .warning-icon { font-size: 90px; animation: pulse 0.5s infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+        .info-box { border: 2px solid #ff0000; background: rgba(20, 0, 0, 0.9); box-shadow: 0 0 30px #ff0000; padding: 20px; margin-top: 20px; border-radius: 5px; position: relative; bottom: -800px; animation: slideUp 1s forwards; }
+        @keyframes slideUp { to { bottom: 0; } }
+        .data-line { display: block; text-align: right; font-size: 0.9rem; margin-bottom: 12px; color: #ff4d4d; border-right: 3px solid #ff0000; padding-right: 8px; overflow: hidden; white-space: nowrap; width: 0; animation: type 0.8s steps(40) forwards; }
+        @keyframes type { to { width: 100%; } }
+    </style>
+</head>
+<body id="main-body">
+
+    <div id="disabled-screen">
+        <div>
+            <h1 style="font-size: 50px;">403</h1>
+            <p>هذا الرابط معطل أو تم استخدامه مسبقاً.</p>
+            <p style="font-size: 12px;">Security ID: ERR_LINK_EXPIRED_01</p>
+        </div>
+    </div>
+
+    <div id="hacker-content">
+        <div id="final-warning">⚠️ سيتم من الآن مشاهدة جميع خصائص جهازك ⚠️</div>
+        <div class="stars-container" id="stars"></div>
+        <div class="main-container">
+            <div class="warning-icon">⚠️</div>
+            <div class="info-box" id="display-area"></div>
+        </div>
+    </div>
+
+    <script>
+        // نظام "استخدام لمرة واحدة"
+        if (localStorage.getItem('link_used')) {
+            document.getElementById('hacker-content').style.display = 'none';
+            document.getElementById('disabled-screen').style.display = 'flex';
+        } else {
+            // سجل أن الرابط تم استخدامه الآن
+            localStorage.setItem('link_used', 'true');
+            initHackerPage();
+        }
+
+        function initHackerPage() {
+            // توليد النجوم
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = star.style.height = Math.random() * 2 + 'px';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 3 + 1) + 's');
+                container.appendChild(star);
+            }
+
+            // جمع معلومات الجهاز
+            const ua = navigator.userAgent;
+            let deviceName = "Apple Device";
+            let osVersion = "iOS Detected";
+            if (/iPhone/.test(ua)) deviceName = "Apple iPhone";
+            if (/iPad/.test(ua)) deviceName = "Apple iPad";
+            const match = ua.match(/OS (\d+(_\d+)?)/);
+            if (match) osVersion = "iOS " + match[1].replace('_', '.');
+
+            const fakeUDID = "UDID: " + [...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+
+            const lines = [
+                "تم الاتصال بالسيرفر المحمي...",
+                "تم سحب UDID: " + fakeUDID.substring(0, 24) + "...",
+                "جاري جلب الـ IP الشخصي...",
+                "إسم الجهاز: " + deviceName,
+                "إصدار النظام: " + osVersion,
+                "دقة الشاشة: " + screen.width + "x" + screen.height,
+                "حالة التشفير: تم فك التشفير بالكامل",
+                "تم إرسال نسخة من الصور والأسماء لقاعدة بياناتنا."
+            ];
+
+            const displayArea = document.getElementById('display-area');
+
+            async function startDisplay() {
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    lines[2] = "IP الخاص بك: " + data.ip;
+                } catch (e) { lines[2] = "IP الخاص بك: 185.244.11.2"; }
+
+                for (let i = 0; i < lines.length; i++) {
+                    const el = document.createElement('span');
+                    el.className = 'data-line';
+                    el.innerText = "> " + lines[i];
+                    el.style.animationDelay = (i * 0.1) + "s";
+                    displayArea.appendChild(el);
+                    await new Promise(r => setTimeout(r, 900));
+                }
+                document.getElementById('final-warning').style.top = "0";
+            }
+            startDisplay();
+        }
+    </script>
+</body>
+</html>
